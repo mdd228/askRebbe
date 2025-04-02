@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask The Rebbe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .chat-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            margin-left: auto;
+        }
+        .assistant-message {
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        .input-group {
+            margin-top: 1rem;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .status {
+            margin: 1rem 0;
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+        .status.success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        .status.info {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            color: #0c5460;
+        }
+        .preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .preview-item {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .preview-item h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .preview-item p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .progress {
+            margin: 1.5rem 0;
+            height: 24px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #007bff;
+            background-image: linear-gradient(45deg, 
+                rgba(255,255,255,.15) 25%, 
+                transparent 25%, 
+                transparent 50%, 
+                rgba(255,255,255,.15) 50%, 
+                rgba(255,255,255,.15) 75%, 
+                transparent 75%, 
+                transparent);
+            background-size: 1rem 1rem;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .progress-info {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        #progressInfo {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #fff;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .directory-status {
+            background-color: #e9ecef;
+            border-left: 4px solid #007bff;
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .summary-status {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 4px;
+            font-weight: normal;
+        }
+        
+        .file-type-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-right: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            min-width: 50px;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .pdf-file {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .doc-file {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .txt-file {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .audio-file {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .unknown-file {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-container">
+            <h1 class="text-center mb-4">Ask The Rebbe</h1>
+            
+            <!-- ==============================================
+                 PDF INGESTION SECTION
+                 ============================================== -->
+            <div>
+                <button onclick="ingestPDFs()" class="btn btn-primary">Process Existing Documents</button>
+                <div id="progressContainer" style="display: none;">
+                    <div class="progress">
+                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                    </div>
+                    <div id="progressInfo" class="progress-info"></div>
+                </div>
+                <div id="ingestionStatus" class="status"></div>
+                <div id="preview" class="preview"></div>
+            </div>
+
+            <!-- ==============================================
+                 CHAT SECTION
+                 ============================================== -->
+            <div class="chat-messages" id="chatMessages"></div>
+            
+            <div class="input-group">
+                <input type="text" id="userInput" class="form-control" placeholder="Ask The Rebbe a question...">
+                <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let processed_pdfs = [];
+        let conversation_history = [];
+
+        async function ingestPDFs() {
+            const statusDiv = document.getElementById('ingestionStatus');
+            const previewDiv = document.getElementById('preview');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressInfo = document.getElementById('progressInfo');
+            
+            // Reset and show progress elements
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+            progressInfo.textContent = 'Starting document processing...';
+            statusDiv.textContent = '';
+            statusDiv.className = 'status';
+            
+            try {
+                // Close any existing EventSource
+                if (window.activeEventSource) {
+                    window.activeEventSource.close();
+                }
+
+                const eventSource = new EventSource('/ingest');
+                window.activeEventSource = eventSource;
+                
+                let retryCount = 0;
+                const maxRetries = 3;
+                let isCompleted = false;
+                
+                eventSource.onmessage = function(event) {
+                    // Reset retry count on successful message
+                    retryCount = 0;
+                    
+                    const data = JSON.parse(event.data);
+                    
+                    switch(data.status) {
+                        case 'directory_start':
+                            const dirStartDiv = document.createElement('div');
+                            dirStartDiv.className = 'status info directory-status';
+                            dirStartDiv.textContent = data.message;
+                            statusDiv.appendChild(dirStartDiv);
+                            break;
+                            
+                        case 'processing':
+                            const percent = Math.round((data.current / data.total) * 100);
+                            progressBar.style.width = `${percent}%`;
+                            progressBar.textContent = `${percent}%`;
+                            progressInfo.innerHTML = `
+                                <span class="file-type-badge ${getFileTypeClass(data.file_type)}">${data.file_type.toUpperCase()}</span>
+                                ${data.message}
+                            `;
+                            break;
+                            
+                        case 'file_complete':
+                            const fileStatus = document.createElement('div');
+                            fileStatus.className = 'status success';
+                            const fileTypeClass = getFileTypeClass(data.file_type);
+                            fileStatus.innerHTML = `
+                                <span class="file-type-badge ${fileTypeClass}">${data.file_type.toUpperCase()}</span>
+                                ${data.message}
+                            `;
+                            statusDiv.appendChild(fileStatus);
+                            
+                            // Update progress
+                            const completePercent = Math.round((data.current / data.total) * 100);
+                            progressBar.style.width = `${completePercent}%`;
+                            progressBar.textContent = `${completePercent}%`;
+                            break;
+                            
+                        case 'file_error':
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'status error';
+                            const errorTypeClass = getFileTypeClass(data.file_type);
+                            errorDiv.innerHTML = `
+                                <span class="file-type-badge ${errorTypeClass}">${data.file_type.toUpperCase()}</span>
+                                ${data.message}
+                            `;
+                            statusDiv.appendChild(errorDiv);
+                            break;
+                            
+                        case 'directory_complete':
+                            const dirStatus = document.createElement('div');
+                            dirStatus.className = 'status success directory-status';
+                            dirStatus.textContent = data.message;
+                            statusDiv.appendChild(dirStatus);
+                            break;
+                            
+                        case 'complete':
+                            isCompleted = true;
+                            eventSource.close();
+                            progressBar.style.width = '100%';
+                            progressBar.textContent = '100%';
+                            progressInfo.textContent = '';  // Clear the progress info
+                            
+                            // Create a summary div
+                            const summaryDiv = document.createElement('div');
+                            summaryDiv.className = 'status success summary-status';
+                            summaryDiv.innerHTML = `
+                                <strong>Processing Complete:</strong> ${data.message}<br>
+                                <small>You can now ask questions about the processed documents.</small>
+                            `;
+                            statusDiv.appendChild(summaryDiv);
+                            break;
+                    }
+                };
+                
+                eventSource.onerror = async function(error) {
+                    console.error('SSE Error:', error);
+                    
+                    if (isCompleted) {
+                        eventSource.close();
+                        return;
+                    }
+                    
+                    if (retryCount < maxRetries) {
+                        retryCount++;
+                        progressInfo.textContent = `Connection lost. Retrying... (Attempt ${retryCount}/${maxRetries})`;
+                        
+                        // Wait before retrying
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        
+                        // Retry the connection
+                        eventSource.close();
+                        ingestPDFs();
+                    } else {
+                        eventSource.close();
+                        progressInfo.textContent = 'Error: Connection to server lost. Please try again.';
+                        statusDiv.textContent = 'Error: Connection to server lost. Please try again.';
+                        statusDiv.className = 'status error';
+                    }
+                };
+                
+            } catch (error) {
+                console.error('Error:', error);
+                progressInfo.textContent = 'Error processing documents: ' + error.message;
+                statusDiv.textContent = 'Error processing documents: ' + error.message;
+                statusDiv.className = 'status error';
+            }
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const chatMessages = document.getElementById('chatMessages');
+            const message = userInput.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'message user-message';
+            userMessageDiv.textContent = message;
+            chatMessages.appendChild(userMessageDiv);
+            
+            // Add user message to conversation history
+            conversation_history.push({
+                "role": "user",
+                "content": message
+            });
+            
+            // Clear input
+            userInput.value = '';
+            
+            // Add loading message
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message assistant-message';
+            loadingDiv.textContent = 'Thinking...';
+            chatMessages.appendChild(loadingDiv);
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        message,
+                        history: conversation_history  // Send conversation history
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remove loading message
+                chatMessages.removeChild(loadingDiv);
+                
+                if (data.error) {
+                    // Show error message in chat
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'message assistant-message error';
+                    errorDiv.textContent = data.error;
+                    chatMessages.appendChild(errorDiv);
+                } else {
+                    // Add assistant's response
+                    const assistantMessageDiv = document.createElement('div');
+                    assistantMessageDiv.className = 'message assistant-message';
+                    assistantMessageDiv.textContent = data.response;
+                    chatMessages.appendChild(assistantMessageDiv);
+                    
+                    // Add assistant's response to conversation history
+                    conversation_history.push({
+                        "role": "assistant",
+                        "content": data.response
+                    });
+                }
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } catch (error) {
+                // Remove loading message
+                chatMessages.removeChild(loadingDiv);
+                
+                // Show error message in chat
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'message assistant-message error';
+                errorDiv.textContent = 'Error: Could not process your request. Please try again.';
+                chatMessages.appendChild(errorDiv);
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+
+        // Allow sending message with Enter key
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Helper function to get file type class
+        function getFileTypeClass(fileType) {
+            const typeClasses = {
+                'pdf': 'pdf-file',
+                'doc': 'doc-file',
+                'docx': 'doc-file',
+                'txt': 'txt-file',
+                'wav': 'audio-file',
+                'mp3': 'audio-file',
+                'audio': 'audio-file',
+                'dat': 'audio-file'  // Treat .dat files as audio
+            };
+            return typeClasses[fileType] || 'unknown-file';
+        }
+
+        // Handle file processing
+        document.getElementById('processButton').addEventListener('click', async () => {
+            const files = document.getElementById('fileInput').files;
+            if (files.length === 0) {
+                alert('Please select files to process');
+                return;
+            }
+
+            // Show processing status
+            document.getElementById('processingStatus').style.display = 'block';
+            document.getElementById('progressBar').style.display = 'block';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressText').textContent = '0%';
+            document.getElementById('statusMessage').textContent = 'Processing files...';
+            document.getElementById('processButton').disabled = true;
+
+            const formData = new FormData();
+            for (let file of files) {
+                formData.append('files', file);
+            }
+
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const {value, done} = await reader.read();
+                    if (done) break;
+                    
+                    buffer += decoder.decode(value, {stream: true});
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+
+                    for (const line of lines) {
+                        if (line.trim() === '') continue;
+                        try {
+                            const data = JSON.parse(line);
+                            if (data.type === 'progress') {
+                                updateProgress(data);
+                            } else if (data.type === 'status') {
+                                updateStatus(data.message);
+                            } else if (data.type === 'complete') {
+                                document.getElementById('statusMessage').textContent = 'Processing complete!';
+                                document.getElementById('processButton').disabled = false;
+                            }
+                        } catch (e) {
+                            console.error('Error parsing SSE data:', e);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('statusMessage').textContent = 'Error processing files. Please try again.';
+                document.getElementById('processButton').disabled = false;
+            }
+        });
+
+        // Update progress bar and status
+        function updateProgress(data) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            progressBar.style.width = `${data.progress}%`;
+            progressText.textContent = `${data.progress}%`;
+            
+            if (data.currentFile) {
+                statusMessage.textContent = `Processing: ${data.currentFile}`;
+            }
+        }
+
+        function updateStatus(message) {
+            document.getElementById('statusMessage').textContent = message;
+        }
+    </script>
+</body>
+</html>

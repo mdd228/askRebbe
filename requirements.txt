@@ -1,0 +1,8 @@
+flask==2.0.1
+openai==0.28.0
+python-docx==0.8.11
+PyPDF2==3.0.1
+pywin32==305
+flask-cors==4.0.0
+SpeechRecognition==3.10.0
+pydub==0.25.1 
